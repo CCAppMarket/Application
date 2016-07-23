@@ -18,3 +18,6 @@ for _, v in pairs(libraries) do
 	setfenv(lib, _G[table_name])
 	lib()
 end
+
+--[[ Add bin directory to shell path ]]--
+shell.setPath(shell.path() .. ":" .. CCAM_CONF.BIN_DIR)
