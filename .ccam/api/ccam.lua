@@ -32,3 +32,7 @@ end
 function getAppVersion(app_name)
 
 end
+
+function appExists(app_name)
+	return fs.exists(CCAM_CONF.APP_DIR .. app_name)
+end

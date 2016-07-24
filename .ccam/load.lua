@@ -1,5 +1,6 @@
 --[[ Load CCAM configuration file ]]--
-CCAM_CONF = {}
+_G["CCAM_CONF"] = {}
+
 local conf = loadfile("/.ccam/config.cfg")
 setfenv(conf, CCAM_CONF)
 conf()
@@ -15,9 +16,10 @@ for _, v in pairs(libraries) do
 	-- Load library into table
 	_G[table_name] = {}
 	local lib = loadfile(CCAM_CONF.LIB_DIR .. v)
-	setfenv(lib, _G[table_name])
+	setfenv(lib, table_name)
 	lib()
 end
+
 
 --[[ Add bin directory to shell path ]]--
 shell.setPath(shell.path() .. ":" .. CCAM_CONF.BIN_DIR)
