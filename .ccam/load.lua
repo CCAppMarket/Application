@@ -16,7 +16,7 @@ for _, v in pairs(libraries) do
 	-- Load library into table
 	_G[table_name] = {}
 	local lib = loadfile(CCAM_CONF.LIB_DIR .. v)
-	setfenv(lib, table_name)
+	setfenv(lib, _G[table_name])
 	lib()
 end
 
