@@ -40,24 +40,32 @@ function checkForUpdate(app_name)
 	end
 
 	-- Check current version
+	local cur_build = getAppVersion(app_name).build
+	print("Current build: " .. cur_build)
 
 	-- Check remote version
+	net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF, CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg")
+	local file = fs.open(CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg", 'r')
+	new_build = json.decode(file.readAll()).version.build
+	print("Newest build: " .. new_build)
 
 	-- If there's an update return true
-
+	return new_build > cur_build and true or false
 end
 
 function getAppVersion(app_name)
 	local app_json_file = fs.open(CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_CONF, 'r')
 
 	-- Decode JSON
+	local data = json.decode(app_json_file.readAll())
+
 
 	app_json_file.close()
 
 	-- Return version
-	
+	return data.version
 end
 
 function appExists(app_name)
-	return fs.exists(CCAM_CONF.APP_DIR .. app_name)
+	return fs.exists(CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_MAIN)
 end
