@@ -6,8 +6,18 @@ function downloadApp(app_name)
 	end
 
 	-- Download files
+	local fjson = net.download(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF)
+	local file_list = json.decode(fjson).files
+	
+	for _, v in pairs(file_list) do
+		net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. "/" .. v,
+						 CCAM_CONF.APP_DIR  .. app_name .. "/" .. v)
+	end
 
 	-- Create bin shortcut
+	local f_sc = fs.open(CCAM_CONF.BIN_DIR .. app_name, 'w')
+	f_sc.write("shell.run('" .. CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_MAIN .. "')")
+	f_sc.close()
 end
 
 function removeApp(app_name)
@@ -44,7 +54,9 @@ function checkForUpdate(app_name)
 	print("Current build: " .. cur_build)
 
 	-- Check remote version
-	net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF, CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg")
+	net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF,
+					 CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg")
+	
 	local file = fs.open(CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg", 'r')
 	new_build = json.decode(file.readAll()).version.build
 	print("Newest build: " .. new_build)
