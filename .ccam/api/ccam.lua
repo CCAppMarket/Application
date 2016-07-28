@@ -20,15 +20,23 @@ function downloadApp(app_name)
 	f_sc.close()
 end
 
-function removeApp(app_name)
+function deleteApp(app_name)
 	-- Check that app exists
 	if not appExists(app_name) then
 		printError("Error: App doesn't exist")
 		return false
 	end
 
-	-- Remove the app
-
+	-- Confirm
+	term.write("Are you sure you want to delete " .. app_name .. "? (y/N): ")
+	local ans = read()
+	if ans == 'y' or ans == 'Y' then
+		-- Remove the app
+		fs.delete(CCAM_CONF.APP_DIR .. app_name)
+		fs.delete(CCAM_CONF.BIN_DIR .. app_name)
+	else
+		print("Aborted.")
+	end
 end
 
 function updateApp(app_name)
@@ -56,7 +64,7 @@ function checkForUpdate(app_name)
 	-- Check remote version
 	net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF,
 					 CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg")
-	
+
 	local file = fs.open(CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg", 'r')
 	new_build = json.decode(file.readAll()).version.build
 	print("Newest build: " .. new_build)
