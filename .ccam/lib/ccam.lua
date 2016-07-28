@@ -5,7 +5,7 @@ function downloadApp(app_name)
 		return false
 	end
 
-	-- Download files
+	-- Download app files
 	local fjson = net.download(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF)
 	local file_list = json.decode(fjson).files
 	
@@ -13,6 +13,8 @@ function downloadApp(app_name)
 		net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. "/" .. v,
 						 CCAM_CONF.APP_DIR  .. app_name .. "/" .. v)
 	end
+
+	-- Download dependencies
 
 	-- Create bin shortcut
 	local f_sc = fs.open(CCAM_CONF.BIN_DIR .. app_name, 'w')
