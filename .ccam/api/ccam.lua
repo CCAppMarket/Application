@@ -46,16 +46,41 @@ function updateApp(app_name)
 		return false
 	end
 
-	-- Update the app
+	-- Check for update
+	local needUpdate = checkForUpdate(app_name)
+
+	if needUpdate then
+		term.write("Are you sure you want to update " .. app_name .. "? (y/N): ")
+		local ans = read()
+		if ans == 'y' or ans == 'Y' then
+			
+			--[[ WIP ]]--
+			--@TODO: Only overwrite new parts
+
+			-- Update the app
+
+			-- Delete old app
+			fs.delete(CCAM_CONF.APP_DIR .. app_name)
+
+			-- Download files
+			local fjson = net.download(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF)
+			local file_list = json.decode(fjson).files
+			
+			for _, v in pairs(file_list) do
+				net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. "/" .. v,
+								 CCAM_CONF.APP_DIR  .. app_name .. "/" .. v)
+			end
+
+		else
+			print("Aborted.")
+		end
+	else
+		print("App is updated.")
+	end
 
 end
 
 function checkForUpdate(app_name)
-	-- Check that app exists
-	if not appExists(app_name) then
-		printError("Error: App doesn't exist")
-		return false
-	end
 
 	-- Check current version
 	local cur_build = getAppVersion(app_name).build
