@@ -7,7 +7,8 @@ function downloadApp(app_name)
 
 	-- Download app files
 	local fjson = net.download(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF)
-	local file_list = json.decode(fjson).files
+	local file_json = json.decode(fjson)
+	local file_list = file_json.files
 	
 	for _, v in pairs(file_list) do
 		net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. "/" .. v,
@@ -15,6 +16,13 @@ function downloadApp(app_name)
 	end
 
 	-- Download dependencies
+	local dependencies = file_json.dependencies
+	for _, v in pairs(dependencies) do
+		net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_MAIN,
+						 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_MAIN)
+		net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_CONF,
+						 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_CONF)
+	end
 
 	-- Create bin shortcut
 	local f_sc = fs.open(CCAM_CONF.BIN_DIR .. app_name, 'w')

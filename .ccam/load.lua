@@ -5,6 +5,8 @@ local conf = loadfile("/.ccam/config.cfg")
 setfenv(conf, CCAM_CONF)
 conf()
 
+--@Deprecated
+--@TODO: New library desing
 --[[ Load libraries into tables ]]--
 -- List libraries
 local libraries = fs.list(CCAM_CONF.LIB_DIR)
