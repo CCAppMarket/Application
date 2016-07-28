@@ -56,7 +56,6 @@ function updateApp(app_name)
 			
 			--[[ WIP ]]--
 			--@TODO: Only overwrite new parts
-
 			-- Update the app
 
 			-- Delete old app
@@ -83,19 +82,19 @@ end
 function checkForUpdate(app_name)
 
 	-- Check current version
-	local cur_build = getAppVersion(app_name).build
-	print("Current build: " .. cur_build)
+	local currrent_version = getAppVersion(app_name)
+	print("Current version: " .. utils.versionStr(currrent_version))
 
 	-- Check remote version
 	net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF,
 					 CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg")
 
 	local file = fs.open(CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg", 'r')
-	new_build = json.decode(file.readAll()).version.build
-	print("Newest build: " .. new_build)
+	local newest_version = json.decode(file.readAll()).version
+	print("Newest version: " .. utils.versionStr(newest_version))
 
 	-- If there's an update return true
-	return new_build > cur_build and true or false
+	return newest_version.build > currrent_version.build and true or false
 end
 
 function getAppVersion(app_name)
@@ -103,8 +102,6 @@ function getAppVersion(app_name)
 
 	-- Decode JSON
 	local data = json.decode(app_json_file.readAll())
-
-
 	app_json_file.close()
 
 	-- Return version
