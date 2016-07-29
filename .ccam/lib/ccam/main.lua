@@ -18,10 +18,12 @@ function downloadApp(app_name)
 	-- Download dependencies
 	local dependencies = file_json.dependencies
 	for _, v in pairs(dependencies) do
-		net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_MAIN,
-						 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_MAIN)
-		net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_CONF,
-						 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_CONF)
+		if not fs.exists(CCAM_CONF.LIB_DIR .. v) then
+			net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_MAIN,
+							 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_MAIN)
+			net.downloadFile(CCAM_CONF.LIB_REPO .. v .. CCAM_CONF.LIB_CONF,
+							 CCAM_CONF.LIB_DIR  .. v .. CCAM_CONF.LIB_CONF)
+		end
 	end
 
 	-- Create bin shortcut
@@ -63,13 +65,10 @@ function updateApp(app_name)
 		term.write("Are you sure you want to update " .. app_name .. "? (y/N): ")
 		local ans = read()
 		if ans == 'y' or ans == 'Y' then
-			
-			--[[ WIP ]]--
-			--@TODO: Only overwrite new parts
-			-- Update the app
 
-			-- Delete old app
-			fs.delete(CCAM_CONF.APP_DIR .. app_name)
+			-- Save app configuration
+			local config = json.decodeFromFile(CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_CONF).configuration
+
 
 			-- Download files
 			local fjson = net.download(CCAM_CONF.APP_REPO .. app_name .. CCAM_CONF.APP_CONF)
@@ -79,6 +78,20 @@ function updateApp(app_name)
 				net.downloadFile(CCAM_CONF.APP_REPO .. app_name .. "/" .. v,
 								 CCAM_CONF.APP_DIR  .. app_name .. "/" .. v)
 			end
+
+			-- Setup app configuration
+			local json_data = json.decodeFromFile(CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_CONF)
+			local new_json = fs.open(CCAM_CONF.APP_DIR .. app_name .. CCAM_CONF.APP_CONF, 'w')
+
+			-- Not overwrite old configuration options
+			for k, v in pairs(config) do
+				print("Config name:" .. k, v)
+				json_data.configuration[k] = v
+			end
+
+			-- Encode to json and close file
+			new_json.write(json.encodePretty(json_data))
+			new_json.close()
 
 		else
 			print("Aborted.")
@@ -102,6 +115,8 @@ function checkForUpdate(app_name)
 	local file = fs.open(CCAM_CONF.TMP_DIR .. app_name .. "_conf.cfg", 'r')
 	local newest_version = json.decode(file.readAll()).version
 	print("Newest version: " .. utils.versionStr(newest_version))
+
+	--utils.clearTemp()
 
 	-- If there's an update return true
 	return newest_version.build > currrent_version.build and true or false
