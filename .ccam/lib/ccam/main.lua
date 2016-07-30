@@ -85,7 +85,6 @@ function updateApp(app_name)
 
 			-- Not overwrite old configuration options
 			for k, v in pairs(config) do
-				print("Config name:" .. k, v)
 				json_data.configuration[k] = v
 			end
 
@@ -116,7 +115,8 @@ function checkForUpdate(app_name)
 	local newest_version = json.decode(file.readAll()).version
 	print("Newest version: " .. utils.versionStr(newest_version))
 
-	--utils.clearTemp()
+	file.close()
+	utils.clearTemp()
 
 	-- If there's an update return true
 	return newest_version.build > currrent_version.build and true or false
